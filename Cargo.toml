@@ -1,5 +1,5 @@
 [package]
-authors     = ["9-FS <pray4spam@googlemail.com>"]
+authors     = ["9-FS <9fs@sussywussy.de>"]
 categories  = ["value-formatting"]
 description = "A convenient formatter to scale, round, and display numbers."
 edition     = "2021"
