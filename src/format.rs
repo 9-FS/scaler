@@ -18,7 +18,7 @@ impl Formatter
     /// # Examples
     /// ```
     /// let f: scaler::Formatter = scaler::Formatter::new(); // calculation results
-    /// assert_eq!(f.format(123.456), "123,5");
+    /// assert_eq!(f.format(123.456), "123,5 ");
     /// assert_eq!(f.format(0.789), "789,0 m");
     /// assert_eq!(f.format(42069), "42,07 k");
     /// ```
@@ -26,7 +26,7 @@ impl Formatter
     /// ```
     /// let f: scaler::Formatter = scaler::Formatter::new()
     ///     .set_rounding(scaler::Rounding::SignificantDigits(3)); // general display
-    /// assert_eq!(f.format(123.456), "123");
+    /// assert_eq!(f.format(123.456), "123 ");
     /// assert_eq!(f.format(0.789), "789 m");
     /// assert_eq!(f.format(42069), "42,1 k");
     /// ```
@@ -44,16 +44,16 @@ impl Formatter
     /// let f: scaler::Formatter = scaler::Formatter::new()
     ///     .set_scaling(scaler::Scaling::Binary(true))
     ///     .set_rounding(scaler::Rounding::SignificantDigits(3)); // data sizes
-    /// assert_eq!(f.format(123.456), "123");
-    /// assert_eq!(f.format(0.789), "1,58 * 2^(-1)");
+    /// assert_eq!(f.format(123.456), "123 ");
+    /// assert_eq!(f.format(0.789), "1,58 * 2^(-1) ");
     /// assert_eq!(f.format(42069), "41,1 Ki");
     /// ```
     ///
     /// ```
     /// let f: scaler::Formatter = scaler::Formatter::new(); // edge cases
-    /// assert_eq!(f.format(f64::NEG_INFINITY), "-∞");
-    /// assert_eq!(f.format(f64::INFINITY), "∞");
-    /// assert_eq!(f.format(f64::NAN), "NaN");
+    /// assert_eq!(f.format(f64::NEG_INFINITY), "-∞ ");
+    /// assert_eq!(f.format(f64::INFINITY), "∞ ");
+    /// assert_eq!(f.format(f64::NAN), "NaN ");
     /// ```
     pub fn format<T>(&self, x: T) -> String
     where
@@ -99,8 +99,7 @@ impl Formatter
 
 
         let mut x: f64 = x.into(); // &T -> f64
-        if x.is_infinite() && x.is_sign_positive()
-        // edge cases
+        if x.is_infinite() && x.is_sign_positive() // edge cases
         {
             s = "∞".to_string(); // positive infinity
             if self.sign == Sign::Always
@@ -108,16 +107,29 @@ impl Formatter
             {
                 s = format!("+{s}"); // manually add plus sign
             }
+            if self.scaling == Scaling::Binary(true) || self.scaling == Scaling::Decimal(true) // if scaling enabled with whitespace between number and unit
+            {
+                s = format!("{s} "); // manually add whitespace
+            }
             return s;
         }
         else if x.is_infinite() && x.is_sign_negative()
         {
             s = "-∞".to_string(); // negative infinity
+            if self.scaling == Scaling::Binary(true) || self.scaling == Scaling::Decimal(true) // if scaling enabled with whitespace between number and unit
+            {
+                s = format!("{s} "); // manually add whitespace
+            }
             return s;
         }
         else if x.is_nan()
         {
-            return "NaN".to_string(); // not a number
+            s = "NaN".to_string(); // not a number
+            if self.scaling == Scaling::Binary(true) || self.scaling == Scaling::Decimal(true) // if scaling enabled with whitespace between number and unit
+            {
+                s = format!("{s} "); // manually add whitespace
+            }
+            return s;
         }
 
 
@@ -201,13 +213,12 @@ impl Formatter
                         if !self.trailing_zeros {s = s.trim_end_matches("0").trim_end_matches(".").to_string();} // remove trailing zeros and bare decimal separator
                         if whitespace_separation {s += " ";} // add whitespace between number and unit prefix
                         s += prefix; // append binary unit prefix
-                        s = s.trim_end().to_string(); // remove possible trailing whitespace
                     },
                     None => // fallback to base 2 scientific notation
                     {
                         s = format!("{:.*}", dec_places as usize, x / 2.0_f64.powf(magnitude.floor())); // divide by 2^magnitude
                         if !self.trailing_zeros {s = s.trim_end_matches("0").trim_end_matches(".").to_string();} // remove trailing zeros and bare decimal separator
-                        s += format!(" * 2^({})", magnitude.floor()).as_str();  // append base 2 multiplier
+                        s += format!(" * 2^({}) ", magnitude.floor()).as_str();  // append base 2 multiplier and whitespace for commonality with non-fallback case
                     }
                 }
             }
@@ -221,13 +232,12 @@ impl Formatter
                         if !self.trailing_zeros {s = s.trim_end_matches("0").trim_end_matches(".").to_string();} // remove trailing zeros and bare decimal separator
                         if whitespace_separation {s += " ";} // add whitespace between number and unit prefix
                         s += prefix; // append decimal unit prefix
-                        s = s.trim_end().to_string(); // remove possible trailing whitespace
                     },
                     None => // fallback to base 10 scientific notation
                     {
                         s = format!("{:.*}", dec_places as usize, x / 10.0_f64.powf(magnitude.floor())); // divide by 10^magnitude
                         if !self.trailing_zeros {s = s.trim_end_matches("0").trim_end_matches(".").to_string();} // remove trailing zeros and bare decimal separator
-                        s += format!(" * 10^({})", magnitude.floor()).as_str(); // append base 10 multiplier
+                        s += format!(" * 10^({}) ", magnitude.floor()).as_str(); // append base 10 multiplier and whitespace for commonality with non-fallback case
                     }
                 }
             }
@@ -235,7 +245,7 @@ impl Formatter
             {
                 s = format!("{:.*}", dec_places as usize, x / 10.0_f64.powf(magnitude.floor())); // divide by 10^magnitude
                 if !self.trailing_zeros {s = s.trim_end_matches("0").trim_end_matches(".").to_string();} // remove trailing zeros and bare decimal separator
-                s += format!(" * 10^({})", magnitude.floor()).as_str(); // append base 10 multiplier
+                s += format!(" * 10^({})", magnitude.floor()).as_str(); // append base 10 multiplier, no whitespace
             }
         }
 

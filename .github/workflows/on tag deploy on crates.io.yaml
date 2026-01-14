@@ -2,7 +2,7 @@ name: "On Tag Deploy on crates.io"
 env:
     REPO_NAME: "scaler"
     RUN_TESTS: true
-    RUST_VERSION: "1.80"
+    RUST_VERSION: "1.91"
 on:
     push:
         tags:

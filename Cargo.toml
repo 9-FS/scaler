@@ -2,14 +2,14 @@
 authors     = ["9-FS <9fs@sussywussy.de>"]
 categories  = ["value-formatting"]
 description = "A convenient formatter to scale, round, and display numbers."
-edition     = "2021"
+edition     = "2024"
 exclude     = [".github/", "readme.pdf"]                                     # additional to .gitignore
 keywords    = ["format", "numbers"]
 license     = "MIT"
 name        = "scaler"
 readme      = "readme.md"
 repository  = "https://github.com/9-FS/scaler"
-version     = "1.3.0"
+version     = "1.4.0"
 
 [dependencies]
 log = { version = "^0.4.0", optional = true }
